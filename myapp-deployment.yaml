@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: myapp
-        image: gcr.io/rising-exchange-326315/myapp:v0.1
+        image: gcr.io/rising-exchange-326315/myapp:latest
         env:
         - name: USERNAME
           valueFrom:
@@ -43,7 +43,7 @@ spec:
           initialDelaySeconds: 5
           periodSeconds: 5
       - name: cloudsql-proxy
-        image: gcr.io/cloudsql-docker/gce-proxy:1.26.0
+        image: gcr.io/cloudsql-docker/gce-proxy:1.11
         command: ["/cloud_sql_proxy",
                   "-instances=rising-exchange-326315:us-central1:strobelsupply-db=tcp:3306",
                   "-credential_file=/secrets/cloudsql/credentials.json"]
@@ -58,4 +58,3 @@ spec:
         - name: cloudsql-instance-credentials
           secret:
             secretName: cloudsql-instance-credentials
-

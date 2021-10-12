@@ -15,7 +15,7 @@ class MainHandler(tornado.web.RequestHandler):
 class ProbeHandler(tornado.web.RequestHandler):
     def get(self):
         try:
-            db = pymysql.connect('localhost', 'myapp', os.getenv('PASSWORD'), 'myapp')
+            db = pymysql.connect('localhost', os.getenv('USERNAME'), os.getenv('PASSWORD'), 'ss_database')
             cursor = db.cursor()
             cursor.execute("SELECT VERSION()")
             result = cursor.fetchone()
@@ -41,4 +41,3 @@ if __name__ == "__main__":
     app = make_app()
     app.listen(8888)
     tornado.ioloop.IOLoop.current().start()
-
