@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: myapp-deployment
+  labels:
+    app: myapp
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: myapp
+  template:
+    metadata:
+      labels:
+        app: myapp
+    spec:
+      containers:
+      - name: myapp
+        image: gcr.io/rising-exchange-326315/myapp:v0.1
+        env:
+        - name: USERNAME
+          valueFrom:
+            configMapKeyRef:
+              name: dbuser
+              key: USERNAME
+        - name: PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: dbpass
+              key: PASSWORD
+        ports:
+        - containerPort: 8888
+        livenessProbe:
+          httpGet:
+            path: /isalive
+            port: 8888
+          initialDelaySeconds: 3
+          periodSeconds: 3
+        readinessProbe:
+          httpGet:
+            path: /isready
+            port: 8888
+          initialDelaySeconds: 5
+          periodSeconds: 5
+      - name: cloudsql-proxy
+        image: gcr.io/cloudsql-docker/gce-proxy:1.26.0
+        command: ["/cloud_sql_proxy",
+                  "-instances=rising-exchange-326315:us-central1:strobelsupply-db=tcp:3306",
+                  "-credential_file=/secrets/cloudsql/credentials.json"]
+        securityContext:
+          runAsUser: 2
+          allowPrivilegeEscalation: false
+        volumeMounts:
+          - name: cloudsql-instance-credentials
+            mountPath: /secrets/cloudsql
+            readOnly: true
+      volumes:
+        - name: cloudsql-instance-credentials
+          secret:
+            secretName: cloudsql-instance-credentials
+
